@@ -66,7 +66,7 @@ app.post("/orders", async (req, res) => {
   } catch (error) {
     if (error.code === grpc.status.NOT_FOUND) {
       return res.status(404).json({
-        message: "User does not exist",
+        message: "User does not exist ",
       });
     }
 
