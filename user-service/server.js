@@ -1,22 +1,31 @@
-
 const express = require("express");
 const mongoose = require("mongoose");
 const grpc = require("@grpc/grpc-js");
 const protoLoader = require("@grpc/proto-loader");
 const path = require("path");
+const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
 app.use(express.json());
 
-const User = mongoose.model("User", new mongoose.Schema({
+app.use(
+  cors({
+    origin: ["http://localhost:5000", "http://localhost:5003"],
+  }),
+);
+
+const User = mongoose.model(
+  "User",
+  new mongoose.Schema({
     name: String,
-    email: String
-}));
+    email: String,
+  }),
+);
 
 // Load proto file
 const packageDefinition = protoLoader.loadSync(
-  path.join(__dirname, "../shared/protos/user.proto")
+  path.join(__dirname, "../shared/protos/user.proto"),
 );
 
 const proto = grpc.loadPackageDefinition(packageDefinition).user;
@@ -54,7 +63,6 @@ app.get("/users/:id", async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
 
 // gRPC method implementation
 async function getUser(call, callback) {
@@ -104,7 +112,7 @@ async function startServer() {
       (error) => {
         if (error) throw error;
         console.log("User gRPC server running on port 50051");
-      }
+      },
     );
   } catch (error) {
     console.error("Server startup failed:", error);
